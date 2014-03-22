@@ -1,0 +1,9 @@
+./positive_images/image.jpg
+./positive_images/image2.jpg
+./positive_images/image3.jpg
+./positive_images/image4.jpg
+./positive_images/image5.jpg
+./positive_images/image6.jpg
+./positive_images/image7.jpg
+./positive_images/image8.jpg
+./positive_images/image9.jpg
