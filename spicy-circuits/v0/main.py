@@ -8,7 +8,7 @@ def displayImage(src):
     cv2.waitKey(0)
     cv2.destroyAllWindows() 
 
-img = cv2.imread('/Users/Tabish/Desktop/density_window/circuit2Original.jpg', 0)
+img = cv2.imread('/Users/Tabish/Desktop/density_window/tabish_is_noob.jpg', 0)
 img = preprocess.convertToBinary(img)
 displayImage(img)
 contourFinder.contourFinder(img)
