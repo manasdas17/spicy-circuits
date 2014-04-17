@@ -8,6 +8,23 @@ def displayImage(src):
 	cv2.destroyAllWindows() 
 
 """
+Returns True if rectangle is enclosed by any rectangles in reclist.
+
+Rectangles are of the form ((x1,y1),(x2,y2)), where (x1,y1) is the
+top left corner, and (x2,y2) is the lower right. reclist is a list 
+of these rectangles.
+"""
+
+def _inRec(rec, reclist):
+	for each in reclist:
+		if (rec[0][0] > each[0][0] and rec[0][1] > each[0][1] 
+		and rec[1][0] < each[1][0] and rec[1][1] < each[1][1]):
+			return True
+
+	else:
+		return False
+
+"""
 Finds rectangular regions of interest (corners, components, nodes) using
 moving pixel density window. Implemented with convolution kernel for speed.
 Works best on smaller images.
@@ -19,7 +36,7 @@ Inputs:
 Outputs:
 	list of rectangles corresponding to each found component
 """
-def findROI(img, windowSize=17):
+def findROI(img, windowSize=15):
 	
 	# skeletonize image to normalize pixel density across image
 	imskel = skeletonize(img).astype(np.uint8)
@@ -41,8 +58,8 @@ def findROI(img, windowSize=17):
 	thresh, imbin = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY)
 
 	# overlap pixels in pixel dense regions with dilation
-	kernel = disk(4)
-	dilation = cv2.dilate(imbin,kernel,iterations = 1)
+	kernel = disk(3)
+	dilation = cv2.dilate(imbin, kernel, iterations=1)
 
 	# draw contour around each pixel dense region
 	contours, hierarchy = cv2.findContours(dilation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -51,11 +68,14 @@ def findROI(img, windowSize=17):
 	regions = [cv2.boundingRect(contour) for contour in contours]
 	regions = [((rec[0], rec[1]), (rec[0] + rec[2], rec[1] + rec[3])) for rec in regions]
 
+	# remove regions enclosed by other regions
+	regions = [rec for rec in regions if not _inRec(rec, regions)]
+
 	return regions
 
 
 
-img = cv2.imread('/Users/Ryan/Desktop/test_images/test2.png',1)
+img = cv2.imread('/Users/Ryan/Desktop/test_images/test10.png',1)
 imgray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 ret,imbin = cv2.threshold(imgray,0,1,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 
@@ -64,7 +84,7 @@ regions = findROI(imbin)
 
 # display regions
 for region in regions:
-	cv2.rectangle(img,region[0],region[1],(0,255,0),2)
+	cv2.rectangle(img,region[0],region[1],(0,255,0),1)
 
 displayImage(img)
 
